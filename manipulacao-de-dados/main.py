@@ -1,15 +1,16 @@
+# Bibliotecas nativas
 import json
 import os
 
-# Abrindo arquivo JSON
-with open("dados.json", "r", encoding="utf-8") as file:
-    global_temp_info = json.load(file)
+# Arquivo local
+import func
+import sessao
 
 # Declarando dados locais
 local_info = {
-    "nome": global_temp_info["nome"],
-    "cpf": global_temp_info["cpf"],
-    "idade": global_temp_info["idade"]
+    "nome": "?",
+    "email": "?",
+    "idade": 0
 }
 
 # Declaro o ano atual
@@ -20,14 +21,17 @@ save = True
 
 # Inicializo com uma mensagem amigável
 print("---------------------------------------")
-print("-------- BEM VINDO A SUA CONTA --------")
+print("-------- BEM VINDO A CENTRAL ! --------")
 
 while True:
     print("---------------------------------------")
-    print("1 - Ver perfil\n2 - Editar configurações\n3 - Sair\n")
+    print("1 - Criar um perfil\n2 - Entrar em um perfil\n3 - Exibir todos os perfis cadastrados\n4 - Sair\n")
 
     if save == False:
         print("(Dados modificados não salvos...)\n")
+
+    if sessao.status == True:
+        print("Você está logado!")
 
     # Solicito para o usuário a escolha de uma opção
     op = int(input("Digite sua escolha: "))
@@ -37,33 +41,73 @@ while True:
     # Match-Case = Switch-Case
     match op:
         case 1:
-            print("-------- DADOS --------")
-            print(f"Nome: {local_info['nome']}")
-            print(f"CPF: {local_info['cpf']}")
-            print(f"Idade: {local_info['idade']}")
+            print("-------- CRIAÇÃO DE CONTA --------")
+            nome = input("Digite seu nome: ")
+            emailRegister = input("Digite seu e-mail: ")
+            anoNasc = int(input("Digite o ano em que nasceu: "))
+
+            while (anoAtual - anoNasc >= 100) or (anoAtual - anoNasc <= 6):
+                os.system("cls")
+
+                print("-------- CRIAÇÃO DE CONTA --------")
+                print("ERRO: O ano em que nasceu está fora do comum, preencha seu ano verdadeiro de nascimento.")
+                anoNasc = int(input("Digite novamente o ano em que nasceu: "))
+
+            email = emailRegister.lower()
+            idade = (anoAtual - anoNasc)
+
+            func.register(nome, email, idade)
 
         case 2:
-            configuracoes(save)
+            email = input("Insira seu e-mail: ")
+
+            with open("dados.json", "r", encoding="utf-8") as file:
+                data = json.load(file)
+                results = func.login(data, email.lower())
+
+                if results:
+                    local_info = {
+                        "nome": data[0]["nome"],
+                        "email": data[0]["email"],
+                        "idade": data[0]["idade"]
+                    }
+                    
+                    sessao.status = True
+                    func.menu(sessao.status, local_info)
+                else:
+                    os.system("cls")
+                    print("ERRO: Informações não reconhecidas.")
 
         case 3:
+            with open("dados.json", "r", encoding="utf-8") as file:
+                global_temp_info = json.load(file)
+
+            print("-------- LISTAGEM DE CONTAS --------")
+            for item in global_temp_info:
+                if item["nome"] == "":
+                    break
+                
+                print(item["nome"])
+
+        case 4:
             print("Obrigado por testar!")
             break
 
+        case 5:
+            print(f"nome de sesao: \n{local_info['nome']}")
+            print(sessao.status)
+
         case _:
-            print("ERRO!\nEssa opção não existe. Tem certeza que digitou corretamente?")
+            print("ERRO: Essa opção não existe. Tem certeza que digitou corretamente?")
 
-
-
-    # Editar o perfil através de uma função
-
-    def configuracoes(save_var):
+def configuracoes(save_var):
         print("-------- EDIÇÃO DE CONTA --------")
         print("Selecione a opção desejada:")
 
         while True:
             
             print("---------------------------------------")
-            print("1 - Editar nome\n2 - Editar CPF\n3 - Editar idade\n4 - Salvar informações\n5 - Voltar\n")
+            print("1 - Editar nome\n2 - Editar e-mail\n3 - Editar idade\n4 - Salvar informações\n5 - Voltar\n")
 
             
             if save_var == False:
@@ -87,7 +131,7 @@ while True:
                 
                 case 2:
                     print("-------- EDIÇÃO DE CONTA --------")
-                    local_info["cpf"] = input("Edite seu CPF: ")
+                    local_info["email"] = input("Edite seu e-mail: ")
 
                     os.system("cls")
                     print("-------- EDIÇÃO DE CONTA --------")
@@ -118,3 +162,9 @@ while True:
                 case 5:
                     break
 
+# precisar depois
+
+# print("-------- DADOS --------")
+# print(f"Nome: {local_info['nome']}")
+# print(f"CPF: {local_info['cpf']}")
+# print(f"Idade: {local_info['idade']}")
