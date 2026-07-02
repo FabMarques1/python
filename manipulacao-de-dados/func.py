@@ -31,12 +31,12 @@ def register(nome, email, idade):
 def login(json_data, email):
     if isinstance(json_data, list):
 
-        for usuario in json_data:
-
+        for i, usuario in enumerate(json_data):
+            
             if usuario.get("email") == email:
-                return True
+                return i
                 
-    return False
+    return None
 
 def menu(session_var, data):
     os.system("cls")
