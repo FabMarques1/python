@@ -45,17 +45,24 @@ while True:
                 print("======== CRIAÇÃO DE CONTA ========")
                 nome = input("Digite seu nome: ")
                 email = input("Digite seu e-mail: ").lower()
-                anoNasc = int(input("Digite o ano em que nasceu: "))
+
+                try:
+                    anoNasc = int(input("Digite o ano em que nasceu: "))
+                except ValueError:
+                    print("ERRO: A opção digitada deve ser somente um número inteiro.")
+                
+                os.system("cls")
 
                 while (anoAtual - anoNasc >= 100) or (anoAtual - anoNasc <= 6):
-                    os.system("cls")
 
                     print("======== CRIAÇÃO DE CONTA ========")
                     print("ERRO: O ano em que nasceu está fora do comum, preencha seu ano verdadeiro de nascimento.")
+                    
                     anoNasc = int(input("Digite novamente o ano em que nasceu: "))
-                idade = (anoAtual - anoNasc)
 
-                func.register(nome, email, idade)
+                    idade = (anoAtual - anoNasc)
+
+                    func.register(nome, email, idade)
 
             case 2:
                 email = input("Insira seu e-mail: ")
@@ -65,11 +72,11 @@ while True:
                         data = json.load(file)
                         results = func.login(data, email.lower())
 
-                        if results:
+                        if results is not None:
                             local_info = {
-                                "nome": data[0]["nome"],
-                                "email": data[0]["email"],
-                                "idade": data[0]["idade"]
+                                "nome": data[results]["nome"],
+                                "email": data[results]["email"],
+                                "idade": data[results]["idade"]
                             }
                             
                             sessao.status = True
